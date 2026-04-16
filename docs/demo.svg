@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 360" font-family="'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace" font-size="14">
+  <style>
+    .bg      { fill: #0d1117; }
+    .bar     { fill: #161b22; }
+    .dot     { }
+    .r       { fill: #ff5f56; }
+    .y       { fill: #ffbd2e; }
+    .g       { fill: #27c93f; }
+    .title   { fill: #8b949e; font-size: 12px; }
+    .prompt  { fill: #7ee787; font-weight: 700; }
+    .arrow   { fill: #79c0ff; }
+    .cmd     { fill: #e6edf3; }
+    .str     { fill: #a5d6ff; }
+    .key     { fill: #ff7b72; }
+    .val     { fill: #d2a8ff; }
+    .num     { fill: #ffa657; }
+    .comment { fill: #8b949e; font-style: italic; }
+    .reply   { fill: #f0f6fc; font-weight: 700; }
+    .hidden  { opacity: 0; }
+    .cursor  { fill: #e6edf3; }
+
+    @keyframes show  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes blink { 50%  { opacity: 0; } }
+
+    .s1 { animation: show 0s 0.3s  both; }
+    .s2 { animation: show 0s 1.2s  both; }
+    .s3 { animation: show 0s 2.0s  both; }
+    .s4 { animation: show 0s 3.0s  both; }
+    .s5 { animation: show 0s 4.2s  both; }
+    .s6 { animation: show 0s 5.0s  both; }
+    .s7 { animation: show 0s 5.6s  both; }
+    .cur{ animation: blink 1s infinite steps(1); }
+  </style>
+
+  <rect class="bg"  width="820" height="360" rx="8"/>
+  <rect class="bar" width="820" height="28"  rx="8"/>
+  <rect class="bar" width="820" height="18"  y="10"/>
+  <circle class="r" cx="18" cy="14" r="6"/>
+  <circle class="y" cx="38" cy="14" r="6"/>
+  <circle class="g" cx="58" cy="14" r="6"/>
+  <text class="title" x="410" y="18" text-anchor="middle">openclaude-bridge — demo</text>
+
+  <!-- line 1: health check command -->
+  <g class="s1">
+    <text y="60">
+      <tspan class="prompt" x="16">$</tspan>
+      <tspan class="cmd"    dx="8">curl</tspan>
+      <tspan class="str"    dx="8">http://127.0.0.1:8788/health</tspan>
+    </text>
+  </g>
+
+  <!-- line 2: health response -->
+  <g class="s2">
+    <text y="84">
+      <tspan class="cmd" x="16">{</tspan>
+      <tspan class="key" dx="4">"ok"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="val" dx="4">true</tspan>
+      <tspan class="cmd">,</tspan>
+      <tspan class="key" dx="4">"model"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="str" dx="4">"claude-opus-4-6"</tspan>
+      <tspan class="cmd">,</tspan>
+      <tspan class="key" dx="4">"stateless"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="val" dx="4">true</tspan>
+      <tspan class="cmd">}</tspan>
+    </text>
+  </g>
+
+  <!-- line 3: chat completion command -->
+  <g class="s3">
+    <text y="128">
+      <tspan class="prompt" x="16">$</tspan>
+      <tspan class="cmd"    dx="8">curl</tspan>
+      <tspan class="str"    dx="8">http://127.0.0.1:8788/v1/chat/completions</tspan>
+      <tspan class="arrow"  dx="8">\</tspan>
+    </text>
+    <text y="150">
+      <tspan class="cmd"    x="40">-H</tspan>
+      <tspan class="str"    dx="8">'content-type: application/json'</tspan>
+      <tspan class="arrow"  dx="8">\</tspan>
+    </text>
+    <text y="172">
+      <tspan class="cmd"    x="40">-d</tspan>
+      <tspan class="str"    dx="8">'{</tspan>
+      <tspan class="key"    dx="0">"model"</tspan>
+      <tspan class="cmd"    dx="0">:</tspan>
+      <tspan class="str"    dx="4">"claude-opus-4-6"</tspan>
+      <tspan class="cmd"    dx="0">,</tspan>
+    </text>
+    <text y="194">
+      <tspan class="key"    x="64">"messages"</tspan>
+      <tspan class="cmd"    dx="0">:</tspan>
+      <tspan class="cmd"    dx="4">[{</tspan>
+      <tspan class="key"    dx="0">"role"</tspan>
+      <tspan class="cmd"    dx="0">:</tspan>
+      <tspan class="str"    dx="4">"user"</tspan>
+      <tspan class="cmd"    dx="0">,</tspan>
+      <tspan class="key"    dx="4">"content"</tspan>
+      <tspan class="cmd"    dx="0">:</tspan>
+      <tspan class="str"    dx="4">"What is 7*8?"</tspan>
+      <tspan class="cmd"    dx="0">}]}'</tspan>
+    </text>
+  </g>
+
+  <!-- spinner / working -->
+  <g class="s4">
+    <text y="222">
+      <tspan class="comment" x="16">…bridge spawns `claude --print`, streams answer back…</tspan>
+    </text>
+  </g>
+
+  <!-- JSON response -->
+  <g class="s5">
+    <text y="250">
+      <tspan class="cmd" x="16">{</tspan>
+      <tspan class="key" dx="4">"id"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="str" dx="4">"chatcmpl-…"</tspan>
+      <tspan class="cmd">,</tspan>
+      <tspan class="key" dx="4">"model"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="str" dx="4">"claude-opus-4-6"</tspan>
+      <tspan class="cmd">,</tspan>
+    </text>
+    <text y="272">
+      <tspan class="key" x="32">"choices"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="cmd" dx="4">[{</tspan>
+      <tspan class="key" dx="0">"message"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="cmd" dx="4">{</tspan>
+      <tspan class="key" dx="0">"role"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="str" dx="4">"assistant"</tspan>
+      <tspan class="cmd">,</tspan>
+    </text>
+    <text y="294">
+      <tspan class="key" x="64">"content"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="reply" dx="4">"56"</tspan>
+      <tspan class="cmd" dx="0">}</tspan>
+      <tspan class="cmd" dx="2">,</tspan>
+      <tspan class="key" dx="4">"finish_reason"</tspan>
+      <tspan class="cmd">:</tspan>
+      <tspan class="str" dx="4">"stop"</tspan>
+      <tspan class="cmd">}]}</tspan>
+    </text>
+  </g>
+
+  <!-- success line -->
+  <g class="s6">
+    <text y="324">
+      <tspan class="comment" x="16">✔ Claude answered through your Claude Code subscription. No API key needed.</tspan>
+    </text>
+  </g>
+
+  <!-- prompt + blinking cursor -->
+  <g class="s7">
+    <text y="350">
+      <tspan class="prompt" x="16">$</tspan>
+      <tspan class="cursor cur" dx="8">▌</tspan>
+    </text>
+  </g>
+</svg>

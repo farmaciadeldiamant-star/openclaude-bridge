@@ -11,6 +11,8 @@
 
 A tiny, zero-dependency Node.js HTTP server that speaks the OpenAI `chat/completions` protocol and forwards every turn to the local `claude` CLI. Plug Claude into Odoo, n8n, LangChain, OpenWebUI, LibreChat, or your own scripts — **no separate Anthropic API key required**.
 
+![demo](docs/demo.svg)
+
 </div>
 
 ---
