@@ -1,10 +1,17 @@
+<div align="center">
+
 # openclaude-bridge
 
-**OpenAI-compatible HTTP bridge for the local Claude Code CLI.**
+**Use your Claude Code subscription from any OpenAI-compatible app.**
 
-Lets any OpenAI-client app (Odoo, n8n, LangChain, OpenWebUI, your own scripts…) talk to Claude through a **Claude Code subscription** — no separate Anthropic API key required.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+[![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)](https://nodejs.org)
+[![Status: working](https://img.shields.io/badge/status-battle--tested-blue)](#battle-tested)
+[![Powered by Claude Code](https://img.shields.io/badge/powered%20by-Claude%20Code-orange)](https://docs.claude.com/en/docs/claude-code/overview)
 
-It exposes a tiny Node.js HTTP server that speaks the OpenAI `chat/completions` protocol and, under the hood, shells out to `claude --print` (the headless mode of the [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) CLI).
+A tiny, zero-dependency Node.js HTTP server that speaks the OpenAI `chat/completions` protocol and forwards every turn to the local `claude` CLI. Plug Claude into Odoo, n8n, LangChain, OpenWebUI, LibreChat, or your own scripts — **no separate Anthropic API key required**.
+
+</div>
 
 ---
 
@@ -12,11 +19,20 @@ It exposes a tiny Node.js HTTP server that speaks the OpenAI `chat/completions` 
 
 If you already pay for a Claude Max / Pro subscription through Claude Code, you can reuse that same auth to power automations and integrations that otherwise expect an `OPENAI_API_KEY` + a base URL. Common use cases:
 
-- Plug Claude into an **Odoo** LLM module (e.g. `apexive/odoo-llm`) as an "OpenAI" provider.
+- Plug Claude into an **Odoo** LLM module (e.g. [`apexive/odoo-llm`](https://github.com/apexive/odoo-llm)) as an "OpenAI" provider.
 - Point **n8n**, **LangChain**, **OpenWebUI**, or **LibreChat** at Claude.
 - Write scripts with the official `openai` Python/JS SDK against Claude without juggling two keys.
+- Stop paying twice (subscription + API) just because a third-party integration hard-codes OpenAI.
 
----
+## Features
+
+- **OpenAI API compatible** — drop-in `base_url` swap for any SDK or app.
+- **Streaming support** — Server-Sent Events for `stream: true` clients.
+- **Zero runtime dependencies** — pure Node.js stdlib. No framework bloat.
+- **Auto-detects the CLI** — works with a global `@anthropic-ai/claude-code` install or a `claude` on `PATH`.
+- **Stateless or sticky** — pick between isolated per-request calls or a persistent workspace with memory.
+- **Cross-platform** — Windows, macOS, Linux.
+- **Small and readable** — one file, ~270 lines, MIT licensed. Fork and bend it to your needs.
 
 ## How it works
 
@@ -37,7 +53,17 @@ The bridge:
 
 Concurrent requests are serialized — the Claude Code CLI is heavy and a single workspace cannot safely run overlapping turns.
 
----
+## Battle-tested
+
+This bridge was built for (and runs in production behind) a real-world Odoo 18 + LLM stack: an independent pharmacy using [`apexive/odoo-llm`](https://github.com/apexive/odoo-llm) as its AI layer, with Claude Opus 4.6 answering business questions, generating SQL, and drafting documents — all through a single Claude Max subscription instead of a separate Anthropic API bill.
+
+It handles:
+
+- Sustained daily traffic from an ERP backend.
+- Multi-minute turns on large context windows.
+- Graceful isolation between a shared Claude Code session and the bridge's own stateless workers.
+
+If it works for a business-critical stack, it'll work for your side project.
 
 ## Prerequisites
 
@@ -50,8 +76,6 @@ Concurrent requests are serialized — the Claude Code CLI is heavy and a single
 - A working Claude subscription (Max / Pro / Team).
 
 The bridge auto-detects the CLI via `npm root -g` or falls back to `claude` on your `PATH`. You can override with the `CLAUDE_CLI` env var.
-
----
 
 ## Install
 
@@ -76,8 +100,6 @@ openclaude-bridge
 npx openclaude-bridge
 ```
 
----
-
 ## Configuration
 
 All options are environment variables. Copy `.env.example` to `.env` and adjust, or export them in your shell / service manager.
@@ -99,8 +121,6 @@ All options are environment variables. Copy `.env.example` to `.env` and adjust,
 - **Stateless** (`OPENCLAUDE_CONTINUE=0`, default): every request is an independent Claude Code invocation. Safe for multi-tenant or concurrent callers. No memory between turns.
 - **Sticky** (`OPENCLAUDE_CONTINUE=1`): reuses the workspace session via `--continue`. Claude remembers prior turns, loads `CLAUDE.md` and skills from `OPENCLAUDE_CWD`. Good for a single-user assistant, **bad** if multiple apps share the same bridge.
 
----
-
 ## Endpoints
 
 ### `GET /health`
@@ -116,8 +136,6 @@ All options are environment variables. Copy `.env.example` to `.env` and adjust,
 ### `POST /v1/chat/completions`
 Standard OpenAI chat completion request. Supports `stream: true` (SSE). Only the **last user message** is forwarded to Claude — system messages and assistant history are not replayed (Claude Code's own memory handles that if sticky mode is enabled).
 
----
-
 ## Quick test
 
 ```bash
@@ -130,9 +148,12 @@ curl http://127.0.0.1:8788/v1/chat/completions \
   -d '{"model":"claude-opus-4-6","messages":[{"role":"user","content":"What is 7*8?"}]}'
 ```
 
-See [`examples/`](./examples) for more (Python OpenAI SDK, Odoo integration, n8n).
+See [`examples/`](./examples) for more:
 
----
+- [`curl.sh`](./examples/curl.sh) — shell smoke tests
+- [`python_openai.py`](./examples/python_openai.py) — official OpenAI Python SDK
+- [`odoo_integration.md`](./examples/odoo_integration.md) — wire it up as a provider in Odoo
+- [`n8n_integration.md`](./examples/n8n_integration.md) — use it from n8n's OpenAI node
 
 ## Limitations
 
@@ -142,15 +163,17 @@ See [`examples/`](./examples) for more (Python OpenAI SDK, Odoo integration, n8n
 - **Plain text output.** Token counts in `usage` are zeroed out — Claude Code doesn't expose them via `--print`.
 - **Latency.** Spawning the CLI adds ~1–3s per turn vs. a direct API call.
 
----
-
 ## Legal / ToS
 
 This project uses the official, supported `--print` mode of the Claude Code CLI. It does **not** reverse-engineer, scrape, or otherwise circumvent any Anthropic service.
 
 That said, **you** are responsible for complying with the [Anthropic Usage Policies](https://www.anthropic.com/legal/aup) and your Claude subscription terms. In particular, using your personal subscription to serve third parties or as a commercial API may violate those terms. Use at your own risk.
 
----
+## Credits
+
+Built collaboratively — a pharmacy owner who wanted to stop paying twice for the same model, and Claude Code itself doing most of the typing. The bridge you see was designed, written, tested, and published without leaving the Claude Code terminal: the same stack it runs on top of.
+
+If you find this useful, a ⭐ on GitHub helps other folks discover it.
 
 ## License
 
