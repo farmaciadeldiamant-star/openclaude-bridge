@@ -1,0 +1,41 @@
+{
+  "name": "openclaude-bridge",
+  "version": "0.1.0",
+  "description": "OpenAI-compatible HTTP bridge that relays chat completions to the local Claude Code CLI. Use your Claude subscription from any OpenAI-client app.",
+  "type": "module",
+  "main": "bridge.mjs",
+  "bin": {
+    "openclaude-bridge": "./bridge.mjs"
+  },
+  "scripts": {
+    "start": "node bridge.mjs",
+    "start:stateless": "node bridge.mjs",
+    "start:sticky": "cross-env OPENCLAUDE_CONTINUE=1 node bridge.mjs"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "anthropic",
+    "openai-api",
+    "openai-compatible",
+    "llm",
+    "bridge",
+    "proxy"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/farmaciadeldiamant-star/openclaude-bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/farmaciadeldiamant-star/openclaude-bridge/issues"
+  },
+  "homepage": "https://github.com/farmaciadeldiamant-star/openclaude-bridge#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@anthropic-ai/claude-code": "*"
+  }
+}
