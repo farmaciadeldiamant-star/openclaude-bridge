@@ -1,0 +1,36 @@
+services:
+  openclaude-bridge:
+    # Uses the local Dockerfile (will use ghcr.io image once published)
+    build: .
+    image: ghcr.io/farmaciadeldiamant-star/openclaude-bridge:latest
+    container_name: openclaude-bridge
+    ports:
+      - "8788:8788"
+    volumes:
+      # Caveat: The container requires the host's Claude subscription auth.
+      # Mount ~/.claude read-only from the host.
+      - ~/.claude:/root/.claude:ro
+    environment:
+      - OPENCLAUDE_PORT=8788
+      - OPENCLAUDE_HOST=0.0.0.0
+      # Use an environment variable to override the model, if needed:
+      # - OPENCLAUDE_MODEL=claude-3-7-sonnet-20250219
+
+  # Sample n8n service that talks to the bridge as an OpenAI-compatible endpoint
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      # Configure n8n to connect to our bridge. 
+      # With OpenAI-compatible nodes in n8n, point the Base URL to the bridge:
+      - OPENAI_API_BASE_URL=http://openclaude-bridge:8788/v1
+      # A key must be provided but its value doesn't matter, as the bridge uses local auth.
+      - OPENAI_API_KEY=not-needed
+    depends_on:
+      - openclaude-bridge
